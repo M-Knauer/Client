@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.knauer.main.services.exceptions.ControllerNotFoundException;
+import com.knauer.main.services.exceptions.DatabaseException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -20,6 +21,20 @@ public class ControllerExceptionHandler {
 		StandarError err = new StandarError(
 				Instant.now(),
 				HttpStatus.NOT_FOUND.value(),
+				"Controller not found",
+				e.getMessage(),
+				request.getRequestURI()
+				);
+		
+		return err;
+	}
+	
+	@ExceptionHandler(DatabaseException.class)
+	@ResponseStatus(code = HttpStatus.BAD_REQUEST)
+	public StandarError database(DatabaseException e, HttpServletRequest request) {
+		StandarError err = new StandarError(
+				Instant.now(),
+				HttpStatus.BAD_REQUEST.value(),
 				"Controller not found",
 				e.getMessage(),
 				request.getRequestURI()
