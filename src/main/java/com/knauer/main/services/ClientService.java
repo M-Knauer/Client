@@ -1,10 +1,10 @@
 package com.knauer.main.services;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +23,9 @@ public class ClientService {
 	private ClientRepository repository;
 
 	@Transactional(readOnly = true)
-	public List<ClientDTO> findAll() {
-		List<ClientDTO> dtos = repository.findAll().stream()
-				.map(x -> new ClientDTO(x)).toList();
+	public Page<ClientDTO> findAll(PageRequest pageRequest) {
 		
-		return dtos;
+		return repository.findAll(pageRequest).map(x -> new ClientDTO(x));
 	}
 
 	@Transactional(readOnly = true)
