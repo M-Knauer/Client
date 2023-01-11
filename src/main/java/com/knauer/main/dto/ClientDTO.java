@@ -6,14 +6,31 @@ import java.util.Objects;
 
 import com.knauer.main.entities.Client;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
+
 public class ClientDTO implements Serializable {
 		private static final long serialVersionUID = 1L;
 		
 		private Long id;
+		
+		@Size(max = 30, message = "Nome não pode ser maior do que 30 caracteres")
+		@NotBlank(message = "Nome não pode ser vazio")
 		private String name;
+		
+		@NotBlank(message = "CPF não pode ser vazio")
+		@Size(max = 11, message = "CPF não pode ser do que 11 caracteres")
 		private String cpf;
+		
+		@PositiveOrZero(message = "Valor não pode ser negativo")
 		private Double income;
+		
+		@Past(message = "Data precisa ser do passado")
 		private Instant birthDate;
+		
+		@PositiveOrZero(message = "Número não pode ser negativo")
 		private Integer children;
 		
 		public ClientDTO() {

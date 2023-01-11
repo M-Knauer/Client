@@ -4,8 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.knauer.main.dto.ClientDTO;
@@ -23,9 +24,9 @@ public class ClientService {
 	private ClientRepository repository;
 
 	@Transactional(readOnly = true)
-	public Page<ClientDTO> findAll(PageRequest pageRequest) {
+	public Page<ClientDTO> findAll(Pageable pageable) {
 		
-		return repository.findAll(pageRequest).map(x -> new ClientDTO(x));
+		return repository.findAll(pageable).map(x -> new ClientDTO(x));
 	}
 
 	@Transactional(readOnly = true)
@@ -35,8 +36,12 @@ public class ClientService {
 	}
 
 	@Transactional
-	public ClientDTO save(Client entity) {
-		ClientDTO dto = new ClientDTO(repository.save(entity));
+	public ClientDTO save(ClientDTO dto) {
+		Client entity = new Client();
+		
+		toEntity(dto, entity);
+		
+		dto = new ClientDTO(repository.save(entity));
 		
 		return dto;
 	}
@@ -45,13 +50,11 @@ public class ClientService {
 	public ClientDTO update(Long id, ClientDTO dto) {
 		try {
 		Client entity = repository.getReferenceById(id);
-		entity.setName(dto.getName());
-		entity.setCpf(dto.getCpf());
-		entity.setBirthDate(dto.getBirthDate());
-		entity.setIncome(dto.getIncome());
-		entity.setChildren(dto.getChildren());
+		
+		toEntity(dto, entity);
 		
 		dto = new ClientDTO(repository.save(entity));
+		
 		return dto;
 		
 		} catch (EntityNotFoundException e) {
@@ -59,6 +62,7 @@ public class ClientService {
 		}
 	}
 
+	@Transactional(propagation = Propagation.SUPPORTS)
 	public void delete(Long id) {
 		
 		try {
@@ -69,6 +73,15 @@ public class ClientService {
 		} catch (DataIntegrityViolationException e) {
 			throw new DatabaseException("Integrity violation");
 		}
+	}
+	
+	private void toEntity(ClientDTO dto, Client entity) {
+		entity.setName(dto.getName());
+		entity.setCpf(dto.getCpf());
+		entity.setBirthDate(dto.getBirthDate());
+		entity.setIncome(dto.getIncome());
+		entity.setChildren(dto.getChildren());
+	
 	}
 	
 }
